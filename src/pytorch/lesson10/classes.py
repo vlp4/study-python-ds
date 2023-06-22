@@ -14,6 +14,7 @@ class FrameHandler(ABC):
         return frame
 
 
+# Открывает видео поток, обрабатывает кадры вызывая указанный FrameHandler
 class VideoStreamer:
     def run(self, handler: FrameHandler):
 
@@ -45,10 +46,6 @@ class VideoStreamer:
 
             frame = frame_handler.process_frame(frame)
 
-            # Рисуем прямоугольник и круг на каждом кадре
-            # frame = cv2.rectangle(frame, (50, 50), (200, 200), (0, 255, 0), 2)
-            # frame = cv2.circle(frame, (300, 300), 100, (0, 0, 255), 2)
-
             # Конвертируем изображение из BGR в RGB
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
@@ -59,6 +56,9 @@ class VideoStreamer:
             fig.canvas.flush_events()
 
 
+# Обрабатывает кадры видео: при наличии лица человеаа извлекает изображение правой руки (слева от лица на кадре)
+# и распознает жест. Выводит жест в консоль.
+# Жесты распознаются моделью, которая обучается отдельно (исходник в отдельном ноутбуке в Колаб).
 class GestureHandler(FrameHandler):
     def __init__(self):
         use_cuda = False
