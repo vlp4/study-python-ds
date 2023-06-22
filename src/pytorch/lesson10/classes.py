@@ -17,7 +17,6 @@ class FrameHandler(ABC):
 # Открывает видео поток, обрабатывает кадры вызывая указанный FrameHandler
 class VideoStreamer:
     def run(self, handler: FrameHandler):
-
         plt.ion()  # Pyplot interactive mode ON
         cap = cv2.VideoCapture(0)
         if cap.isOpened():
@@ -63,9 +62,12 @@ class GestureHandler(FrameHandler):
     def __init__(self):
         use_cuda = False
         self.device = torch.device('cuda' if use_cuda and torch.cuda.is_available() else 'cpu')
+        # Обнаруживаем лицо с помощью CascadeClassifier:
         self.face_cascade = cv2.CascadeClassifier('data/haarcascade_frontalface_default.xml')
+        # Создаем экземпляр извлекателя переднего плана:
         self.backSub = cv2.createBackgroundSubtractorMOG2(detectShadows=False, history=500, varThreshold=24)
 
+        # Создаем экземпляр модели и загружаем веса из файла, полученного после обучения.
         model = GestureRecognitionModel()
         model.load_state_dict(torch.load('data/gestures_weights.pth'))
         self.gestureModel = model.to(self.device)
@@ -73,6 +75,7 @@ class GestureHandler(FrameHandler):
         self.prev_gesture = None
 
     def process_frame(self, frame):
+        # Применим OpenCV для обнаружения лица
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         maybe_faces = self.face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
         frame_w, frame_h = frame.shape[1], frame.shape[0]
